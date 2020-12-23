@@ -66,11 +66,18 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(tempo_distributor_spans_received_total[$__rate_interval]))",
+          "expr": "sum(rate(tempo_receiver_accepted_spans[$__rate_interval]))",
           "interval": "",
-          "legendFormat": "",
+          "legendFormat": "accepted",
           "queryType": "randomWalk",
           "refId": "A"
+        },
+        {
+          "expr": "sum(rate(tempo_receiver_refused_spans[$__rate_interval]))",
+          "interval": "",
+          "legendFormat": "refused",
+          "queryType": "randomWalk",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -93,6 +100,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:67",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -101,6 +109,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:68",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -260,7 +269,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(tempo_distributor_spans_received_total[$__rate_interval])) / \nsum(rate(container_cpu_usage_seconds_total{image=~\".*tempo.*\"}[$__rate_interval]))",
+          "expr": "sum(rate(tempo_receiver_accepted_spans[$__rate_interval])) / \nsum(rate(container_cpu_usage_seconds_total{image=~\".*tempo.*\"}[$__rate_interval]))",
           "interval": "",
           "legendFormat": "",
           "queryType": "randomWalk",
@@ -287,6 +296,7 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:38",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -295,6 +305,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:39",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -604,7 +615,7 @@
       }
     }
   ],
-  "refresh": "10s",
+  "refresh": "30s",
   "schemaVersion": 26,
   "style": "dark",
   "tags": [],
@@ -612,7 +623,7 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
