@@ -1,0 +1,6 @@
+overrides:
+    "single-tenant":
+        ingestion_max_batch_size: 50000
+        ingestion_rate_limit: 7000
+        max_spans_per_trace: 3500
+        max_traces_per_user: 100000

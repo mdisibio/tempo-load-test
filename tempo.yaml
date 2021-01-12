@@ -1,5 +1,5 @@
 auth_enabled: false
-compactor: null
+
 distributor:
     receivers:
         zipkin:
@@ -20,9 +20,24 @@ memberlist:
   - ingester-0:7946
   - ingester-1:7946
 
+compactor:
+  compaction:
+    compaction_window: 1h              # blocks in this time window will be compacted together
+    max_compaction_objects: 1000000    # maximum size of compacted blocks
+    block_retention: 1h
+    compacted_block_retention: 10m
+
 overrides:
   ingestion_max_batch_size: 100000
   max_traces_per_user: 1000000
+  ingestion_rate_strategy: global
+  per_tenant_override_config: /conf/overrides.yaml
+
+querier:
+    frontend_worker:
+        frontend_address: frontend:9095  
+query_frontend:
+    query_shards: 10
 
 server:
     http_listen_port: 3100

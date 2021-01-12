@@ -6,9 +6,10 @@ services:
     command: "-target=distributor -config.file=/etc/tempo.yaml"
     volumes:
       - ./tempo.yaml:/etc/tempo.yaml
+      - ./overrides.yaml:/conf/overrides.yaml
     ports:
       - "14268"  # jaeger ingest
-      - "3100"   # tempo
+      - "3100:3100"   # tempo
       - "7946"
     depends_on:
       - minio
@@ -18,6 +19,7 @@ services:
     command: "-target=ingester -config.file=/etc/tempo.yaml"
     volumes:
       - ./tempo.yaml:/etc/tempo.yaml
+      - ./overrides.yaml:/conf/overrides.yaml
     ports:
       - "14268"  # jaeger ingest
       - "3100"   # tempo
@@ -30,12 +32,62 @@ services:
     command: "-target=ingester -config.file=/etc/tempo.yaml"
     volumes:
       - ./tempo.yaml:/etc/tempo.yaml
+      - ./overrides.yaml:/conf/overrides.yaml
     ports:
       - "14268"  # jaeger ingest
       - "3100"   # tempo
       - "7946"
     depends_on:
       - distributor # inverted relationship here to add delay for minio
+
+  compactor:
+    image: tempo:latest
+    command: "-target=compactor -config.file=/etc/tempo.yaml"
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - ./overrides.yaml:/conf/overrides.yaml
+    ports:
+      - "3100"   # tempo
+      - "7946"
+    depends_on:
+      - distributor # inverted relationship here to add delay for minio
+
+  tempo-query:
+    image: grafana/tempo-query:latest
+    command: ["--grpc-storage-plugin.configuration-file=/etc/tempo-query.yaml"]
+    volumes:
+      - ./tempo-query.yaml:/etc/tempo-query.yaml
+    ports:
+      - "16686:16686"  # jaeger-ui
+    depends_on:
+      - frontend
+
+  querier:
+    image: tempo:latest
+    command: "-target=querier -config.file=/etc/tempo.yaml"
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - ./overrides.yaml:/conf/overrides.yaml
+    ports:
+      - "3100"   # tempo
+      - "3101:3100"
+      - "7946"
+    depends_on:
+      - distributor # inverted relationship here to add delay for minio
+
+  frontend:
+    image: tempo:latest
+    command: "-target=query-frontend -config.file=/etc/tempo.yaml"
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - ./overrides.yaml:/conf/overrides.yaml
+    ports:
+      - "3100"   # tempo
+      - "3102:3100"
+      - "7946"
+    depends_on:
+      - distributor # inverted relationship here to add delay for minio
+
 
   minio:
     image: minio/minio:RELEASE.2020-07-27T18-37-02Z
